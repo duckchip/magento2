@@ -118,15 +118,21 @@ define([
 
             if (value) {
                 if (this.options.showsTime) {
-                    shiftedValue = moment.tz(value, 'UTC').tz(this.storeTimeZone);
+                    if(this.options.timeOnly) {
+                        shiftedValue = value;
+                    } else {
+                        shiftedValue = moment.tz(value, 'UTC').tz(this.storeTimeZone);
+                    }
                 } else {
                     shiftedValue = moment(value, this.outputDateFormat);
                 }
 
-                if (!shiftedValue.isValid()) {
-                    shiftedValue = moment(value, this.inputDateFormat);
+                if (shiftedValue instanceof moment) {
+                    if (!shiftedValue.isValid()) {
+                        shiftedValue = moment(value, this.inputDateFormat);
+                    }
+                    shiftedValue = shiftedValue.format(this.pickerDateTimeFormat);
                 }
-                shiftedValue = shiftedValue.format(this.pickerDateTimeFormat);
             } else {
                 shiftedValue = '';
             }
@@ -151,9 +157,14 @@ define([
                 momentValue = moment(shiftedValue, this.pickerDateTimeFormat);
 
                 if (this.options.showsTime) {
-                    formattedValue = moment(momentValue).format(this.timezoneFormat);
-                    value = moment.tz(formattedValue, this.storeTimeZone).tz('UTC').toISOString();
-                } else {
+                    if(this.options.timeOnly) {
+                        value = shiftedValue;
+                    } else {
+                        formattedValue = moment(momentValue).format(this.timezoneFormat);
+                        value = moment.tz(formattedValue, this.storeTimeZone).tz('UTC').toISOString();
+                    }
+                }
+                else {
                     value = momentValue.format(this.outputDateFormat);
                 }
             } else {
